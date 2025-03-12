@@ -1,0 +1,81 @@
+---
+title: "biol432 assignment 9 report"
+author: "Anouk Dimbeanu"
+date: "2025-03-11"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(ape)
+library(ggtree)
+library(vegan)
+library(dplyr)
+```
+
+```{r}
+data <- read.csv("/Users/AnoukDimbeanu/Desktop/FloristicSurvey.csv")
+str(data)
+```
+
+```{r}
+data[4:44] <- lapply(data[4:44], as.numeric)
+str(data)
+```
+
+# remove the non-numeric values
+
+```{r}
+species <- data[, 4:ncol(data)]
+head(species)
+```
+# Question 1 
+
+```{r}
+bray <- vegdist(species, method = "bray", binary = "F")
+```
+
+```{r}
+tree = nj(bray)
+ggtree(tree, layout = "rectangular") +
+  geom_tiplab(aes(label = label))
+```
+Figure 1. neighbor-joining tree showing the bray-curtis dissimilarity of the effect of garlic mustard on plant communities. 
+
+Based on this figure we can see that there is significant clustering (3 clusters). This indicates that the garlic mustard may have an effect on the plant community. The shorter branches indicate that the garlic mustard has a smaller effect on the species while longer branches show that garlic mustard has a greater effect on species. This tree suggests that the garlic mustard plant does have an effect on the plant community, however further analysis must be done in question 2. 
+
+
+# Question 2
+
+```{r}
+nmdsdat <- metaMDS(bray, k = 3, trymax = 100)
+```
+
+```{r}
+PDat1 <- data.frame(NMDS1 = nmdsdat$points[,1],
+                    NMDS2 = nmdsdat$points[,2],
+                    Population = data$Population)
+ggplot(aes(x=NMDS1,y=NMDS2,colour=Population),
+       alpha=I(0.6),data=PDat1) +
+  geom_point() + 
+  theme_bw()
+```
+
+Figure 2. NMDS plot representing the effect of garlic mustard on the population (represented in the blue gradient). 
+ 
+```{r}
+PDat2 <- data.frame(NMDS1 = nmdsdat$points[,1],
+                   NMDS2 = nmdsdat$points[,2],
+                   location = data$Location)
+ggplot(aes(x=NMDS1,y=NMDS2,colour=location),
+       alpha=I(0.6),data=PDat2) +
+  geom_point() + 
+  theme_bw()
+```
+
+Figure 3. NMDS plot of the location of garlic mustard and its effect on the plant community. The presence of garlic mustard is indicated in red and the absence of garlic mustard is indicated in blue. 
+
+The non-metric multidimensional scaling (figure 2) was used to visualize the differences in garlic mustard across the population of the plant community at QUBS. This graph allowed us to reduce the dimensions of the data and improve visualization. The seperation of the population points across NMDS1 and NMDS2 suggests that there may be variation across the plant communities. Since there is no clustering, an NMDS plot was created to understand the effects of garlic mustard on the plants based on location. Another NMDS (figure 3) was used to visualize the differences in the absence or presence of garlic mustard and the plant community at QUBS.The points on this graph show a clear seperation between the presence of garlic mustard and the absence of garlic mustard. The noticable clustering pattern between the red and blue indicate that the garlic mustard presence may have an influence in the plant community. The weak overlap between the red and the blue also show that the garlic mustard has a fairly strong effect on plant communities. Therefore, the presence/absence of the garlic mustard has a greater effect on the plant community in comparison the the population of garlic mustard. 
+
+GITHUB LINK: https://github.com/anoukdimbeanu
+
